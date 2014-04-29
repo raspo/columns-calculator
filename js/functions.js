@@ -7,38 +7,46 @@ var CC = (function(){
             colSpacing  : null,
             demoArea    : null
         },
-        calculate       = function( focussed ){
-            var full    = el.fullWidth.val() || 0,
-                col     = el.colNum.val() || 0,
-                single  = el.singleWidth.val() || 0,
-                spacing = el.colSpacing.val() || 0;
+        eventTimeout    = null,
+        setValue        = function(fieldName, value){
+            isFieldValid(el[fieldName], value);
+            el[fieldName].val(value);
+        },
+        isFieldValid    = function(field, value){
+            // are there any decimal numbers?
+            if( value < 0 || value % 1 !== 0) {
+                field.addClass('v-invalid');
+            } else {
+                field.removeClass('v-invalid');
+            }
+        },
+        getFieldValue   = function( el ){
+            var value = el.val() || 0;
+            return parseFloat(value);
+        },
+        calculate       = function( fieldName ){
+            var full    = getFieldValue(el.fullWidth),
+                col     = getFieldValue(el.colNum),
+                single  = getFieldValue(el.singleWidth),
+                spacing = getFieldValue(el.colSpacing);
 
-            console.log('CALCULATE', full,col,single,spacing);
+            // console.log('CALCULATE', full,col,single,spacing);
 
-            if( is_set(full) && is_set(col) ){
-
-                if( is_set(spacing) && (focussed != "singleWidth") ) {
+            if( full && col ){
+                if( spacing && (fieldName != "singleWidth") ) {
 
                     single = ( full - ( spacing * ( col - 1) ) ) / col;
-                    el.singleWidth.val(single);
+
+                    setValue( 'singleWidth', single );
                     demo( full, col, single, spacing );
 
-                } else if( is_set(single) && (focussed != "colSpacing") ) {
+                } else if( single && (fieldName != "colSpacing") ) {
 
                     spacing = ( full - ( single * col ) ) / ( col - 1 );
-                    el.colSpacing.val(spacing);
+                    setValue( 'colSpacing', spacing );
                     demo( full, col, single, spacing );
 
                 }
-
-            }
-        },
-        // Check if the value is set
-        is_set          = function(value){
-            if ( (value !== "") && (value !== 0) ) {
-                return true;
-            } else {
-                return false;
             }
         },
         // Update the demo area
@@ -60,25 +68,23 @@ var CC = (function(){
             }
         },
         registerEvents  = function(){
-            el.fields.on('keyup', function(e){
-                var focussed = $(this).attr("id");
+            el.fields.on('keyup change', function(e){
+                var el          = $(this),
+                    fieldName   = el.attr("id");
 
-                // If the UP arrow is pressed
-                if( e.keyCode == 38 ){
-                    // $(this).val( parseInt($(this).val()) + 1 );
-                // If the DOWN arrow is pressed
-                }else if( e.keyCode == 40 ){
-                    // $(this).val( parseInt($(this).val()) - 1 );
-                }
-
-                calculate(focussed);
+                // prevent multiple events from being fired at (almost) the same time
+                clearTimeout(eventTimeout);
+                eventTimeout = setTimeout(function(){
+                    console.log('FIRE', fieldName, e.type);
+                    isFieldValid(el, getFieldValue(el));
+                    calculate(fieldName);
+                }, 100);
             });
         },
         init            = function(){
-
             // Cache the jquery objects
             el = {
-                fields      : $(".form"),
+                fields      : $(".field"),
                 fullWidth   : $("#fullWidth"),
                 colNum      : $("#colNum"),
                 singleWidth : $("#singleWidth"),

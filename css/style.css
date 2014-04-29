@@ -22,13 +22,13 @@ body{
 	margin: 0 auto;
 }
 
-.formContainer{
+.fieldContainer{
 	float: left;
 	width: 210px;
 	margin: 0 40px 0 0;
 }
 
-.formContainer.last{
+.fieldContainer.last{
 	margin: 0;
 }
 
@@ -42,7 +42,7 @@ label:hover{
 	color: #222;
 }
 
-.form{
+.field{
 	width: 188px;
 	padding: 5px 10px;
 	line-height: 1em;
@@ -58,10 +58,14 @@ label:hover{
 	box-shadow: 0 0 1px #fff;
 }
 
-.form:focus{
+.field:focus{
 	outline: none;
 	background: #f0f0f0;
 	border-color: #bbb;
+}
+
+.field.v-invalid{
+	border-color: #b00;
 }
 
 #demo{
